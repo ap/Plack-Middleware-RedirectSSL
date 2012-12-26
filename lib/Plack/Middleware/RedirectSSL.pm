@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use parent 'Plack::Middleware';
 
-# ABSTRACT:
+# ABSTRACT: force all requests to use in-/secure connections
 
 use Plack::Util ();
 use Plack::Util::Accessor qw( ssl );
@@ -36,9 +36,32 @@ __END__
 
  # in app.psgi
  use Plack::Builder;
-
+ 
  builder {
+     enable 'RedirectSSL';
      $app;
  };
 
 =head1 DESCRIPTION
+
+This middleware intercepts requests using either the C<http> or C<https> scheme
+and redirects them to the same URI under respective other scheme.
+
+=head1 CONFIGURATION OPTIONS
+
+=over 4
+
+=item C<ssl>
+
+Specifies the direction of redirects. If true or not specified, requests using
+C<http> will be redirected to C<https>. If false, requests using C<https> will
+be redirected to plain C<http>.
+
+=back
+
+=head1 BUGS
+
+Probably that it does not (yet?) support
+RFCE<nsbp>6797 (HTTP Strict Transport Security (HSTS)).
+
+=cut
