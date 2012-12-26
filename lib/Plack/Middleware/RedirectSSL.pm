@@ -62,6 +62,6 @@ be redirected to plain C<http>.
 =head1 BUGS
 
 Probably that it does not (yet?) support
-RFCE<nsbp>6797 (HTTP Strict Transport Security (HSTS)).
+RFCE<nbsp>6797 (HTTP Strict Transport Security (HSTS)).
 
 =cut

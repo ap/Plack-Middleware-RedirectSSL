@@ -1,4 +1,7 @@
 Revision history for Plack-Middleware-RedirectSSL
 
+1.001 Wed 26 Dec 2012
+	- No functional changes. POD typo fix.
+
 1.000 Wed 26 Dec 2012
 	- Initial release.
