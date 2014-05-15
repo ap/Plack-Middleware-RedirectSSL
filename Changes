@@ -1,5 +1,9 @@
 Revision history for Plack-Middleware-RedirectSSL
 
+1.100 Thu 15 May 2014
+	- Added support for HTTP Strict Transport Security.
+	  Enabled by default.
+
 1.001 Wed 26 Dec 2012
 	- No functional changes. POD typo fix.
 
