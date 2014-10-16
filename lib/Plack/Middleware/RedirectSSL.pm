@@ -10,7 +10,7 @@ use Plack::Util::Accessor qw( ssl hsts );
 use Plack::Request ();
 
 #                           seconds minutes hours days weeks
-sub DEFAULT_STS_MAXAGE () { 60    * 60    * 24  * 7  * 6 }
+sub DEFAULT_STS_MAXAGE () { 60    * 60    * 24  * 7  * 26 }
 
 sub call {
 	my $self = shift;
