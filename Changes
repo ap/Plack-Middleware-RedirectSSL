@@ -1,15 +1,19 @@
 Revision history for Plack-Middleware-RedirectSSL
 
+1.102 Mov 05 Jan 2015
+	- No functional changes
+	- Test suite cleanup
+
 1.101 Thu 16 Oct 2014
-	- Increased default HSTS maxage from 6 weeks to 26.
-	  Qualys SSL Labs recommend at least 180 days.
+	- Default HSTS maxage now 26 weeks instead of 6
+	  (Qualys SSL Labs recommend at least 180 days)
 
 1.100 Thu 15 May 2014
-	- Added support for HTTP Strict Transport Security.
-	  Enabled by default.
+	- Support for HTTP Strict Transport Security (enabled by default)
 
 1.001 Wed 26 Dec 2012
-	- No functional changes. POD typo fix.
+	- No functional changes
+	- POD typo fix
 
 1.000 Wed 26 Dec 2012
-	- Initial release.
+	- Initial release
