@@ -1,0 +1,58 @@
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Plack::Middleware::RedirectSSL - force all requests to use in-/secure connections
+
+=head1 VERSION
+
+version 1.103
+
+=head1 SYNOPSIS
+
+ # in app.psgi
+ use Plack::Builder;
+ 
+ builder {
+     enable 'RedirectSSL';
+     $app;
+ };
+
+=head1 DESCRIPTION
+
+This middleware intercepts requests using either the C<http> or C<https> scheme
+and redirects them to the same URI under respective other scheme.
+
+=head1 CONFIGURATION OPTIONS
+
+=over 4
+
+=item C<ssl>
+
+Specifies the direction of redirects. If true or not specified, requests using
+C<http> will be redirected to C<https>. If false, requests using C<https> will
+be redirected to plain C<http>.
+
+=item C<hsts>
+
+Specifies the C<max-age> value for the C<Strict-Transport-Security> header.
+(Cf. L<RFCE<nbsp>6797, I<HTTP Strict Transport Security>|http://tools.ietf.org/html/rfc6797>.)
+If not specified, it defaults to 6 weeks. If 0, no C<Strict-Transport-Security>
+header will be sent.
+
+=back
+
+=head1 AUTHOR
+
+Aristotle Pagaltzis <pagaltzis@gmx.de>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Aristotle Pagaltzis.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

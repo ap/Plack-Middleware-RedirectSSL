@@ -1,5 +1,9 @@
 Revision history for Plack-Middleware-RedirectSSL
 
+1.103 Sat 10 Jan 2015
+	- No functional changes
+	- No longer contains INSTALL file with install-as-root instructions
+
 1.102 Mov 05 Jan 2015
 	- No functional changes
 	- Test suite cleanup
