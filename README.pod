@@ -8,7 +8,7 @@ Plack::Middleware::RedirectSSL - force all requests to use in-/secure connection
 
 =head1 VERSION
 
-version 1.103
+version 1.104
 
 =head1 SYNOPSIS
 

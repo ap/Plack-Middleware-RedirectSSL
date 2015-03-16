@@ -1,5 +1,9 @@
 Revision history for Plack-Middleware-RedirectSSL
 
+1.104 Mon 16 Mar 2015
+	- No functional changes
+	- Correct documentation of default HSTS maxage
+
 1.103 Sat 10 Jan 2015
 	- No functional changes
 	- No longer contains INSTALL file with install-as-root instructions
