@@ -77,7 +77,7 @@ be redirected to plain C<http>.
 
 Specifies the C<max-age> value for the C<Strict-Transport-Security> header.
 (Cf. L<RFCE<nbsp>6797, I<HTTP Strict Transport Security>|http://tools.ietf.org/html/rfc6797>.)
-If not specified, it defaults to 6 weeks. If 0, no C<Strict-Transport-Security>
+If not specified, it defaults to 26 weeks. If 0, no C<Strict-Transport-Security>
 header will be sent.
 
 =back
