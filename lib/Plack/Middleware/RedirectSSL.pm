@@ -1,6 +1,4 @@
-use 5.010;
-use strict;
-use warnings;
+use 5.010; use strict; use warnings;
 
 package Plack::Middleware::RedirectSSL;
 
@@ -16,8 +14,7 @@ use Plack::Request ();
 sub DEFAULT_STS_MAXAGE () { 60    * 60    * 24  * 7  * 26 }
 
 sub call {
-	my $self = shift;
-	my $env  = shift;
+	my ( $self, $env ) = ( shift, @_ );
 
 	my $do_ssl = ( $self->ssl // 1 )                      ? 1 : 0;
 	my $is_ssl = ( 'https' eq $env->{'psgi.url_scheme'} ) ? 1 : 0;
