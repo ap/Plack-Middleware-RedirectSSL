@@ -57,6 +57,7 @@ test_psgi app => $mw->to_app, client => sub {
 	}
 
 	$mw->ssl( undef );
+	$mw->prepare_app;
 	my $hsts_age = Plack::Middleware::RedirectSSL::DEFAULT_STS_MAXAGE;
 
 	$res = $cb->( GET 'https://localhost/' );
