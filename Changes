@@ -1,5 +1,6 @@
 Revision history for Plack-Middleware-RedirectSSL
 
+1.200 Sat 09 Dec 2017
 	- Minimum perl requirement reduction to 5.6
 	- Minimum Test::More requirement dropped
 
