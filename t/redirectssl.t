@@ -2,7 +2,7 @@ use strict; use warnings;
 
 use Plack::Test;
 use Plack::Builder;
-use Test::More 0.88; # for done_testing
+use Test::More tests => 21;
 use HTTP::Request::Common;
 use Plack::Middleware::RedirectSSL ();
 
@@ -71,5 +71,3 @@ test_psgi app => $mw->to_app, client => sub {
 	$res = $cb->( GET 'https://localhost/' );
 	is $res->header( 'Strict-Transport-Security' ), undef, '... or completely disabled';
 };
-
-done_testing;
