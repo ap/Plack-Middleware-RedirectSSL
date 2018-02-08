@@ -2,7 +2,7 @@ use strict; use warnings;
 
 use Plack::Test;
 use Plack::Builder;
-use Test::More tests => 21;
+use Test::More tests => 22;
 use HTTP::Request::Common;
 use Plack::Middleware::RedirectSSL ();
 
@@ -67,7 +67,11 @@ test_psgi app => $mw->to_app, client => sub {
 	$res = $cb->( GET 'https://localhost/' );
 	is $res->header( 'Strict-Transport-Security' ), 'max-age='.$hsts_age, '... but can be changed';
 
-	$mw->hsts( 0 );
+	$mw->hsts( $hsts_age = 0 );
+	$res = $cb->( GET 'https://localhost/' );
+	is $res->header( 'Strict-Transport-Security' ), 'max-age='.$hsts_age, '... and also set to zero';
+
+	$mw->hsts( '' );
 	$res = $cb->( GET 'https://localhost/' );
 	is $res->header( 'Strict-Transport-Security' ), undef, '... or completely disabled';
 };
