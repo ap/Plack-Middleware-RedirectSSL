@@ -2,7 +2,7 @@ use strict; use warnings;
 
 use Plack::Test;
 use Plack::Builder;
-use Test::More tests => 22;
+use Test::More tests => 26;
 use HTTP::Request::Common;
 use Plack::Middleware::RedirectSSL ();
 
@@ -74,4 +74,25 @@ test_psgi app => $mw->to_app, client => sub {
 	$mw->hsts( '' );
 	$res = $cb->( GET 'https://localhost/' );
 	is $res->header( 'Strict-Transport-Security' ), undef, '... or completely disabled';
+
+	$mw->hsts( $hsts_age = 60 * 60 );
+
+	$mw->hsts_include_sub_domains( 1 );
+	$res = $cb->( GET 'https://localhost/' );
+	is $res->header( 'Strict-Transport-Security' ), 'max-age='.$hsts_age.'; includeSubDomains', 'HSTS includeSubDomains can be enabled';
+
+	$mw->hsts_include_sub_domains( 0 );
+	$mw->hsts_preload( 1 );
+	my $warning;
+	{
+		local $SIG{__WARN__} = sub { $warning = shift };
+		$res = $cb->( GET 'https://localhost/' );
+	}
+	is $res->header( 'Strict-Transport-Security' ), 'max-age='.$hsts_age.'; preload', 'HSTS preload can be enabled';
+	like $warning => qr/ requires .+ includeSubDomains /x, "... but warns that includeSubDomains is required";
+
+	$mw->hsts_include_sub_domains( 1 );
+	$mw->hsts_preload( 1 );
+	$res = $cb->( GET 'https://localhost/' );
+	is $res->header( 'Strict-Transport-Security' ), 'max-age='.$hsts_age.'; includeSubDomains; preload', 'HSTS includeSubDomains and preload can be enabled together';
 };
