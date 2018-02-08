@@ -30,7 +30,7 @@ sub call {
 
 	my $res = $self->app->( $env );
 
-	if ( $is_ssl and $self->hsts ) {
+	if ( $is_ssl and defined $self->hsts and length $self->hsts ) {
 		my $max_age = 0 + $self->hsts;
 		$res = Plack::Util::response_cb( $res, sub {
 			my $res = shift;
@@ -82,7 +82,7 @@ be redirected to plain C<http>.
 
 Specifies the C<max-age> value for the C<Strict-Transport-Security> header.
 (Cf. L<RFCE<nbsp>6797, I<HTTP Strict Transport Security>|http://tools.ietf.org/html/rfc6797>.)
-If not specified, it defaults to 26 weeks. If 0, no C<Strict-Transport-Security>
+If not specified, it defaults to 26 weeks. If C<''> or C<undef>, no C<Strict-Transport-Security>
 header will be sent.
 
 =back
