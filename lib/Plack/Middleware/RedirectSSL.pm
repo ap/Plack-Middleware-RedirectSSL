@@ -7,11 +7,15 @@ package Plack::Middleware::RedirectSSL;
 use parent 'Plack::Middleware';
 
 use Plack::Util ();
-use Plack::Util::Accessor qw( ssl hsts );
+use Plack::Util::Accessor qw( ssl hsts hsts_include_sub_domains hsts_preload );
 use Plack::Request ();
 
 #                           seconds minutes hours days weeks
 sub DEFAULT_STS_MAXAGE () { 60    * 60    * 24  * 7  * 26 }
+
+# HSTS minimum 'max-age' value required by 'preload' directive
+# https://hstspreload.org/
+sub HSTS_PRELOAD_MIN_MAX_AGE { 31536000 }
 
 sub call {
 	my ( $self, $env ) = ( shift, @_ );
@@ -30,11 +34,24 @@ sub call {
 
 	my $res = $self->app->( $env );
 
-	if ( $is_ssl and $self->hsts ) {
+	if ( $is_ssl and defined $self->hsts and length $self->hsts ) {
 		my $max_age = 0 + $self->hsts;
+
+		if ( $self->hsts_preload ) {
+			$self->hsts_include_sub_domains
+			  or warn "HSTS directive 'preload' requires directive 'includeSubDomains'";
+
+			$max_age >= HSTS_PRELOAD_MIN_MAX_AGE()
+			  or warn "HSTS directive 'preload' requires directive 'max-age' to be 31536000 (1 year) or more";
+		}
+
+		my $sts = "max-age=$max_age";
+		$sts .= '; includeSubDomains' if $self->hsts_include_sub_domains;
+		$sts .= '; preload'           if $self->hsts_preload;
+
 		$res = Plack::Util::response_cb( $res, sub {
 			my $res = shift;
-			Plack::Util::header_set( $res->[1], 'Strict-Transport-Security', "max-age=$max_age" );
+			Plack::Util::header_set( $res->[1], 'Strict-Transport-Security', $sts );
 		} );
 	}
 
@@ -82,8 +99,21 @@ be redirected to plain C<http>.
 
 Specifies the C<max-age> value for the C<Strict-Transport-Security> header.
 (Cf. L<RFCE<nbsp>6797, I<HTTP Strict Transport Security>|http://tools.ietf.org/html/rfc6797>.)
-If not specified, it defaults to 26 weeks. If 0, no C<Strict-Transport-Security>
+If not specified, it defaults to 26 weeks. If C<''> or C<undef>, no C<Strict-Transport-Security>
 header will be sent.
+
+=item C<hsts_includeSubDomains>
+
+Enables the C<includeSubDomains> directive for the C<Strict-Transport-Security> header.
+If not specified, defaults to false.
+
+=item C<hsts_preload>
+
+Enables the C<preload> directive defined at L<https://hstspreload.org/>
+for the C<Strict-Transport-Security> header.
+If not specified, defaults to false.
+Note that this requires the C<includeSubDomains> directive to be set
+and the C<max-age> directive to be 31536000 (1 year) or more.
 
 =back
 
