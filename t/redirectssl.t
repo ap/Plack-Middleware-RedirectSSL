@@ -2,7 +2,7 @@ use strict; use warnings;
 
 use Plack::Test;
 use Plack::Builder;
-use Test::More tests => 26;
+use Test::More tests => 28;
 use HTTP::Request::Common;
 use Plack::Middleware::RedirectSSL ();
 
@@ -75,7 +75,7 @@ test_psgi app => $mw->to_app, client => sub {
 	$res = $cb->( GET 'https://localhost/' );
 	is $res->header( 'Strict-Transport-Security' ), undef, '... or completely disabled';
 
-	$mw->hsts( $hsts_age = 60 * 60 );
+	$mw->hsts( $hsts_age = 31536000 );
 
 	$mw->hsts_include_sub_domains( 1 );
 	$res = $cb->( GET 'https://localhost/' );
@@ -95,4 +95,13 @@ test_psgi app => $mw->to_app, client => sub {
 	$mw->hsts_preload( 1 );
 	$res = $cb->( GET 'https://localhost/' );
 	is $res->header( 'Strict-Transport-Security' ), 'max-age='.$hsts_age.'; includeSubDomains; preload', 'HSTS includeSubDomains and preload can be enabled together';
+
+	$mw->hsts( $hsts_age = 31536000 - 1 );
+	$warning = undef;
+	{
+		local $SIG{__WARN__} = sub { $warning = shift };
+		$res = $cb->( GET 'https://localhost/' );
+	}
+	is $res->header( 'Strict-Transport-Security' ), 'max-age='.$hsts_age.'; includeSubDomains; preload', 'HSTS header is as configured lower than 31536000';
+	like $warning => qr/ 31536000 /x, "... but warns that that max_age must be 1 year or more";
 };

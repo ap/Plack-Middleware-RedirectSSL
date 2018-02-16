@@ -13,6 +13,10 @@ use Plack::Request ();
 #                           seconds minutes hours days weeks
 sub DEFAULT_STS_MAXAGE () { 60    * 60    * 24  * 7  * 26 }
 
+# HSTS minimum 'max-age' value required by 'preload' directive
+# https://hstspreload.org/
+sub HSTS_PRELOAD_MIN_MAX_AGE { 31536000 }
+
 sub call {
 	my ( $self, $env ) = ( shift, @_ );
 
@@ -33,8 +37,12 @@ sub call {
 	if ( $is_ssl and defined $self->hsts and length $self->hsts ) {
 		my $max_age = 0 + $self->hsts;
 
-		if ( $self->hsts_preload and not $self->hsts_include_sub_domains ) {
-			warn "HSTS directive 'preload' requires directive 'includeSubDomains'";
+		if ( $self->hsts_preload ) {
+			$self->hsts_include_sub_domains
+			  or warn "HSTS directive 'preload' requires directive 'includeSubDomains'";
+
+			$max_age >= HSTS_PRELOAD_MIN_MAX_AGE()
+			  or warn "HSTS directive 'preload' requires directive 'max-age' to be 31536000 (1 year) or more";
 		}
 
 		my $sts = "max-age=$max_age";
