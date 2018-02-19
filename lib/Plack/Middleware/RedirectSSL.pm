@@ -30,15 +30,12 @@ sub call {
 
 	my $res = $self->app->( $env );
 
-	if ( $is_ssl and $self->hsts ) {
-		my $max_age = 0 + $self->hsts;
-		$res = Plack::Util::response_cb( $res, sub {
-			my $res = shift;
-			Plack::Util::header_set( $res->[1], 'Strict-Transport-Security', "max-age=$max_age" );
-		} );
-	}
+	return $res unless $is_ssl and my $max_age = $self->hsts;
+	$max_age += 0;
 
-	return $res;
+	Plack::Util::response_cb( $res, sub {
+		Plack::Util::header_set( $_[0][1], 'Strict-Transport-Security', "max-age=$max_age" );
+	} );
 }
 
 sub prepare_app {
