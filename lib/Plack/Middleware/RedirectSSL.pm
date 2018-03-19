@@ -38,10 +38,11 @@ sub call {
 	} );
 }
 
-sub prepare_app {
-	my $self = shift;
+sub new {
+	my $self = shift->SUPER::new( @_ );
 	defined $self->ssl  or $self->ssl ( 1 );
 	defined $self->hsts or $self->hsts( DEFAULT_STS_MAXAGE );
+	$self;
 }
 
 1;
