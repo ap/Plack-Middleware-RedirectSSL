@@ -7,7 +7,7 @@ package Plack::Middleware::RedirectSSL;
 use parent 'Plack::Middleware';
 
 use Plack::Util ();
-use Plack::Util::Accessor qw( ssl hsts );
+use Plack::Util::Accessor qw( ssl hsts_header );
 use Plack::Request ();
 
 #                           seconds minutes hours days weeks
@@ -30,18 +30,26 @@ sub call {
 
 	my $res = $self->app->( $env );
 
-	return $res unless $is_ssl and my $max_age = $self->hsts;
-	$max_age += 0;
+	return $res unless $is_ssl and my $hsts = $self->hsts_header;
 
 	Plack::Util::response_cb( $res, sub {
-		Plack::Util::header_set( $_[0][1], 'Strict-Transport-Security', "max-age=$max_age" );
+		Plack::Util::header_set( $_[0][1], 'Strict-Transport-Security', $hsts );
 	} );
+}
+
+sub hsts {
+	my ( $self, $value ) = ( shift, @_ );
+	return $self->{'hsts'} unless @_;
+	my $max_age = $value ? 0 + $value : defined $value ? undef : DEFAULT_STS_MAXAGE;
+	$self->hsts_header( defined $max_age ? 'max-age=' . $max_age : undef );
+	$self->{'hsts'} = $value;
 }
 
 sub new {
 	my $self = shift->SUPER::new( @_ );
-	defined $self->ssl  or $self->ssl ( 1 );
-	defined $self->hsts or $self->hsts( DEFAULT_STS_MAXAGE );
+	$self->ssl(1) if not defined $self->ssl;
+	if    ( exists $self->{'hsts'} ) { $self->hsts( $self->{'hsts'} ) }
+	elsif ( not $self->hsts_header ) { $self->hsts( undef ) }
 	$self;
 }
 
@@ -76,11 +84,17 @@ Specifies the direction of redirects. If true or not specified, requests using
 C<http> will be redirected to C<https>. If false, requests using C<https> will
 be redirected to plain C<http>.
 
+=item C<hsts_header>
+
+Specifies an arbitrary string value for the C<Strict-Transport-Security> header.
+If false, no such header will be sent.
+
 =item C<hsts>
 
-Specifies the C<max-age> value for the C<Strict-Transport-Security> header.
-If not specified, it defaults to 26 weeks.
-If 0, no C<Strict-Transport-Security> header will be sent.
+Specifies a C<max-age> value for an HSTS policy with no other directives
+and updates the C<hsts_header> option to reflect it.
+If undef, sets a C<hsts_header> to a C<max-age> of 26E<nbsp>weeks.
+If otherwise false, sets C<hsts_header> to C<undef>.
 (If you really want a C<max-age> value of 0, use C<'00'>, C<'0E0'> or C<'0 but true'>.)
 
 =back
