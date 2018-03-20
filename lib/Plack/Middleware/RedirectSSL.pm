@@ -10,8 +10,9 @@ use Plack::Util ();
 use Plack::Util::Accessor qw( ssl hsts_header );
 use Plack::Request ();
 
-#                           seconds minutes hours days weeks
-sub DEFAULT_STS_MAXAGE () { 60    * 60    * 24  * 7  * 26 }
+#                               seconds  minutes  hours   days  weeks
+sub DEFAULT_STS_MAXAGE     () {      60  *    60  *  24  *   7  *  26 }
+sub MIN_STS_PRELOAD_MAXAGE () {      60  *    60  *  24  * 365        }
 
 sub call {
 	my ( $self, $env ) = ( shift, @_ );
@@ -76,7 +77,7 @@ sub render_sts_policy {
 
 	return undef if not defined $opt;
 
-	my @directive = qw( max_age include_subdomains );
+	my @directive = qw( max_age include_subdomains preload );
 
 	{
 		my %known = map +( $_, 1 ), @directive;
@@ -84,19 +85,26 @@ sub render_sts_policy {
 		die "HSTS policy contains unknown directive(s) $unknown", _callsite if $unknown;
 	}
 
-	my ( $max_age, $include_subdomains ) = @$opt{ @directive };
+	my ( $max_age, $include_subdomains, $preload ) = @$opt{ @directive };
 
 	$max_age = defined $max_age
 		? do { no warnings 'numeric'; int $max_age }
-		: DEFAULT_STS_MAXAGE;
+		: $preload ? MIN_STS_PRELOAD_MAXAGE : DEFAULT_STS_MAXAGE;
 
 	die 'HSTS max_age 0 conflicts with setting other directives', _callsite
-		if 0 == $max_age and $include_subdomains;
+		if 0 == $max_age and ( $include_subdomains or $preload );
+
+	if ( $preload ) {
+		$include_subdomains = 1 unless defined $include_subdomains;
+		die 'HSTS preload conflicts with disabled include_subdomains', _callsite unless $include_subdomains;
+		die "HSTS preload requires longer max_age (got $max_age; minimum ".MIN_STS_PRELOAD_MAXAGE.')', _callsite
+			if MIN_STS_PRELOAD_MAXAGE > $max_age;
+	}
 
 	# expose computed values back to the caller
-	@$opt{ @directive } = ( $max_age, !!$include_subdomains );
+	@$opt{ @directive } = ( $max_age, !!$include_subdomains, !!$preload );
 
-	join '; ', "max-age=$max_age", ('includeSubDomains') x !!$include_subdomains;
+	join '; ', "max-age=$max_age", ('includeSubDomains') x !!$include_subdomains, ('preload') x !!$preload;
 }
 
 1;
@@ -172,7 +180,10 @@ The following directives are supported:
 
 Integer value for the C<max-age> directive.
 
-If missing or undefined, it defaults to 26E<nbsp>weeks.
+If missing or undefined, it will normally default to 26E<nbsp>weeks.
+
+But if the C<preload> directive is true, it will default to 365E<nbsp>days
+and may not be set to any smaller value.
 
 If 0 (which unpublishes a previous HSTS policy), no other directives may be set.
 
@@ -180,7 +191,14 @@ If 0 (which unpublishes a previous HSTS policy), no other directives may be set.
 
 Boolean; whether to include the C<includeSubDomains> directive.
 
-If missing or undefined, it defaults to false.
+If missing or undefined, it will normally default to false.
+
+But if the C<preload> directive is true, it will defaults to true
+and may not be set to false.
+
+=item C<preload>
+
+Boolean; whether to include the C<preload> directive.
 
 =back
 
@@ -191,6 +209,10 @@ If missing or undefined, it defaults to false.
 =item *
 
 L<RFCE<nbsp>6797, I<HTTP Strict Transport Security>|http://tools.ietf.org/html/rfc6797>
+
+=item *
+
+L<HSTS preload list|https://hstspreload.org/>
 
 =back
 
