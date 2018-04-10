@@ -208,11 +208,22 @@ Boolean; whether to include the C<preload> directive.
 
 =item *
 
+L<Plack::Middleware::ReverseProxy>
+
+If your L<PSGI> application runs behind a reverse proxy that unwraps SSL connections
+then you will need to put this middleware in front of RedirectSSL.
+
+=item *
+
 L<RFCE<nbsp>6797, I<HTTP Strict Transport Security>|http://tools.ietf.org/html/rfc6797>
 
 =item *
 
-L<HSTS preload list|https://hstspreload.org/>
+L<HSTS preload|https://hstspreload.org/>
+
+Specification of the C<preload> directive
+and submission form for inclusion into the Google Chrome preload list
+(also used by most other browsers)
 
 =back
 
