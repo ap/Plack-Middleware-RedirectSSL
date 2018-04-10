@@ -150,7 +150,10 @@ If false, no such header will be sent.
 Specifies a value to pass to C<L</render_sts_policy>>
 and updates the C<hsts_header> option with the returned value.
 
-Defaults to an HSTS policy with default values.
+ enable 'RedirectSSL', hsts_policy => { include_subdomains => 1 };
+
+Defaults to an HSTS policy with default values,
+which is a C<max-age> of 26E<nbsp>weeks and no other directives.
 
 =item C<hsts>
 
@@ -170,8 +173,21 @@ If otherwise false, sets C<hsts_policy> to C<undef>.
 
 Takes either a hash reference containing an HSTS policy or C<undef>,
 and returns the corresponding C<Strict-Transport-Security> header value.
+
+ my $policy = { include_subdomains => 1 };
+ printf "Strict-Transport-Security: %s\n", render_sts_policy $policy;
+ # Strict-Transport-Security: max-age=15724800; includeSubDomains
+
 As a side effect, validates the policy and
 updates the hash with the ultimate value of every directive after computing defaults.
+
+ use Data::Dumper; local $Data::Dumper::Terse = 1;
+ print +Dumper $policy;
+ # {
+ #   'max_age' => 15724800,
+ #   'include_subdomains' => 1,
+ #   'preload' => ''
+ # }
 
 The following directives are supported:
 
