@@ -134,9 +134,11 @@ and redirects them to the same URI under respective other scheme.
 
 =item C<ssl>
 
-Specifies the direction of redirects. If true or not specified, requests using
-C<http> will be redirected to C<https>. If false, requests using C<https> will
-be redirected to plain C<http>.
+Specifies the direction of redirects.
+If true, requests using C<http> will be redirected to C<https>.
+If false, requests using C<https> will be redirected to plain C<http>.
+
+Defaults to true if not specified during construction.
 
 =item C<hsts_header>
 
@@ -154,11 +156,10 @@ Defaults to an HSTS policy with default values.
 
 Use of this option is L<discouraged|perlpolicy/discouraged>.
 
-Specifies a C<max-age> value for the current HSTS policy (preserving all other directives)
-or creates a new one (containing no other directives)
-and updates the C<hsts_header> option to reflect it.
-If undef, sets a C<hsts_header> to a C<max-age> of 26E<nbsp>weeks.
-If otherwise false, sets C<hsts_header> to C<undef>.
+Specifies a C<max-age> value for the C<hsts_policy> option,
+preserving all other existing C<hsts_policy> directives, if any.
+If undef, uses a C<max-age> of 26E<nbsp>weeks.
+If otherwise false, sets C<hsts_policy> to C<undef>.
 (If you really want a C<max-age> value of 0, use C<'00'>, C<'0E0'> or C<'0 but true'>.)
 
 =back
