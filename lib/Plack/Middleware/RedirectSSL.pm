@@ -2,7 +2,7 @@ use 5.006; use strict; use warnings;
 
 package Plack::Middleware::RedirectSSL;
 
-our $VERSION = '1.301';
+our $VERSION = '1.302';
 
 BEGIN { require Plack::Middleware; our @ISA = 'Plack::Middleware' }
 
