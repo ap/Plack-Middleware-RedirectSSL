@@ -2,7 +2,7 @@ use 5.006; use strict; use warnings;
 
 package Plack::Middleware::RedirectSSL;
 
-# ABSTRACT: force all requests to use in-/secure connections
+our $VERSION = '1.301';
 
 BEGIN { require Plack::Middleware; our @ISA = 'Plack::Middleware' }
 
@@ -112,6 +112,12 @@ sub render_sts_policy {
 __END__
 
 =pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Plack::Middleware::RedirectSSL - force all requests to use in-/secure connections
 
 =head1 SYNOPSIS
 
