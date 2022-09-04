@@ -4,7 +4,7 @@ package Plack::Middleware::RedirectSSL;
 
 # ABSTRACT: force all requests to use in-/secure connections
 
-use parent 'Plack::Middleware';
+BEGIN { require Plack::Middleware; our @ISA = 'Plack::Middleware' }
 
 use Plack::Util ();
 use Plack::Util::Accessor qw( ssl hsts_header );
